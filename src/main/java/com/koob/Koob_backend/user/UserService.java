@@ -1,8 +1,10 @@
 package com.koob.Koob_backend.user;
 
+import com.koob.Koob_backend.book.Book;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -30,5 +32,11 @@ public class UserService {
 
     public Optional<User> findById(Long userId) {
         return userRepository.findById(userId);
+    }
+
+    public Set<Book> getUserBooks(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getBooks();
     }
 }

@@ -1,11 +1,14 @@
 package com.koob.Koob_backend.book;
 
+import com.koob.Koob_backend.user.User;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -24,6 +27,9 @@ public class Book {
     private String description;
     private String thumbnailUrl;
     private String infoLink;
+
+    @ManyToMany(mappedBy = "books")
+    private Set<User> users = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
