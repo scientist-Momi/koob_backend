@@ -41,6 +41,16 @@ public class JwtUtil {
                 .parseClaimsJws(token);
     }
 
+    public boolean isTokenValid(String token) {
+        try {
+            validateToken(token);
+            return true;
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+
     public String getUserId(String token) {
         return validateToken(token).getBody().getSubject();
     }

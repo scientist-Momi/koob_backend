@@ -33,18 +33,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                String userId = jwtUtil.getUserId(token);
-                String email = jwtUtil.getEmail(token);
+                if (jwtUtil.isTokenValid(token)) {
+                    String userId = jwtUtil.getUserId(token);
+                    String email = jwtUtil.getEmail(token);
 
-                User user = userService.findById(Long.valueOf(userId))
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(user, null,
-                                List.of(new SimpleGrantedAuthority("ROLE_USER")));
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    User user = userService.findById(Long.valueOf(userId))
+                            .orElseThrow(() -> new RuntimeException("User not found"));
 
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                    if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UsernamePasswordAuthenticationToken auth =
+                                new UsernamePasswordAuthenticationToken(
+                                        user,
+                                        null,
+                                        List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                );
+                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
+
+                }
             } catch (Exception e) {
+                logger.warn("JWT authentication failed: {}", e);
                 SecurityContextHolder.clearContext();
             }
         }
