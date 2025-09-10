@@ -30,6 +30,6 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
         cookie.setMaxAge((int) (jwtUtil.getExpirationMs() / 1000));
 
         response.addCookie(cookie);
-        response.sendRedirect("http://localhost:3000/dashboard");
+        response.sendRedirect("http://localhost:5173/");
     }
 }
