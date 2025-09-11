@@ -50,7 +50,6 @@ public class JwtUtil {
         }
     }
 
-
     public String getUserId(String token) {
         return validateToken(token).getBody().getSubject();
     }
@@ -58,6 +57,4 @@ public class JwtUtil {
     public String getEmail(String token) {
         return validateToken(token).getBody().get("email", String.class);
     }
-
-
 }
