@@ -32,22 +32,20 @@ public class SecurityConfig {
     private final CustomOidcUserService customOidcUserService;
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomOidcUserService customOidcUserService, JwtUtil jwtUtil, UserService userService) {
+
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomOidcUserService customOidcUserService, JwtUtil jwtUtil, UserService userService, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.customOAuth2UserService = customOAuth2UserService;
         this.customOidcUserService = customOidcUserService;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
     public JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler() {
         return new JwtAuthenticationSuccessHandler(jwtUtil);
-    }
-
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtUtil, userService);
     }
 
     @Bean
@@ -68,8 +66,14 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/v1/auth/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/api/v1/auth/status").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").permitAll()
+                        // Require authentication for /me so the filter must populate the principal
+                        .requestMatchers("/api/v1/auth/me").authenticated()
+                        // Everything else also requires auth
                         .anyRequest().authenticated()
+
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
@@ -83,7 +87,7 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/")
                         .permitAll()
                 );
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

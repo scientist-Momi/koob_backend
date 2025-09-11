@@ -1,8 +1,11 @@
 package com.koob.Koob_backend.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.koob.Koob_backend.book.Book;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -36,6 +39,10 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "book_id")
     )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+
     private Set<Book> books = new HashSet<>();
 
     @CreationTimestamp
