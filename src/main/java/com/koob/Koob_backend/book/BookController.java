@@ -21,16 +21,16 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    @PostMapping("/save")
-    public ResponseEntity<String> saveBookForUser(@RequestBody Book book, @AuthenticationPrincipal User user) {
-        userLibraryService.addBookToUser(user.getId(), book);
-        return ResponseEntity.ok("Book saved!");
-    }
-
-    @GetMapping("/mine")
-    public ResponseEntity<Set<Book>> getMyBooks(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(user.getBooks());
-    }
+//    @PostMapping("/save")
+//    public ResponseEntity<String> saveBookForUser(@RequestBody Book book, @AuthenticationPrincipal User user) {
+//        userLibraryService.addBookToUser(user.getId(), book);
+//        return ResponseEntity.ok("Book saved!");
+//    }
+//
+//    @GetMapping("/mine")
+//    public ResponseEntity<Set<Book>> getMyBooks(@AuthenticationPrincipal User user) {
+//        return ResponseEntity.ok(user.getBooks());
+//    }
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<BookDTO>>> searchBooks(@RequestParam("q") String query) {

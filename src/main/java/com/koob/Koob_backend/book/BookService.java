@@ -37,7 +37,7 @@ public class BookService {
         }
 
         return response.getItems().stream()
-                .map(this::mapGoogleBookToDTO) // method in BookService
+                .map(this::mapGoogleBookToDTO)
                 .collect(Collectors.toList());
 
     }
@@ -45,7 +45,7 @@ public class BookService {
     @Transactional
     public BookDTO saveBookFromGoogle(GoogleBookItem item) {
         return bookRepository.findByGoogleBookId(item.getId())
-                .map(bookMapper::toDto) // already in DB, just map to DTO
+                .map(bookMapper::toDto)
                 .orElseGet(() -> {
                     Book book = mapGoogleBookToEntity(item);
                     Book saved = bookRepository.save(book);
