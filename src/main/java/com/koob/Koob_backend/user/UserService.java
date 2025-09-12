@@ -9,13 +9,21 @@ import java.util.Set;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
-    public User getOrCreateUser(String googleId, String email, String name, String pictureUrl) {
-        return userRepository.findByGoogleId(googleId)
+    public UserDTO getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::toDTO)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public UserDTO getOrCreateUser(String googleId, String email, String name, String pictureUrl) {
+        User user = userRepository.findByGoogleId(googleId)
                 .orElseGet(() -> {
                     User newUser = new User();
                     newUser.setGoogleId(googleId);
@@ -24,10 +32,12 @@ public class UserService {
                     newUser.setPictureUrl(pictureUrl);
                     return userRepository.save(newUser);
                 });
+
+        return userMapper.toDTO(user);
     }
 
-    public User updateUser(User user) {
-        return userRepository.save(user);
+    public UserDTO updateUser(User user) {
+        return userMapper.toDTO(userRepository.save(user));
     }
 
     public Optional<User> findById(Long userId) {
