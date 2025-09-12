@@ -1,6 +1,10 @@
 package com.koob.Koob_backend.user;
 
 import com.koob.Koob_backend.book.Book;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,18 +26,15 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public UserDTO getOrCreateUser(String googleId, String email, String name, String pictureUrl) {
-        User user = userRepository.findByGoogleId(googleId)
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setGoogleId(googleId);
-                    newUser.setEmail(email);
-                    newUser.setName(name);
-                    newUser.setPictureUrl(pictureUrl);
-                    return userRepository.save(newUser);
-                });
-
-        return userMapper.toDTO(user);
+    public User getOrCreateUser(String googleId, String email, String name, String pictureUrl) {
+        return userRepository.findByGoogleId(googleId).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setGoogleId(googleId);
+            newUser.setEmail(email);
+            newUser.setName(name);
+            newUser.setPictureUrl(pictureUrl);
+            return userRepository.save(newUser);
+        });
     }
 
     public UserDTO updateUser(User user) {
@@ -42,6 +43,27 @@ public class UserService {
 
     public Optional<User> findById(Long userId) {
         return userRepository.findById(userId);
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        // Delete cookie
+        ResponseCookie delete = ResponseCookie.from("AUTH-TOKEN", "")
+                .httpOnly(true)
+                .secure(false) // set true in prod
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader("Set-Cookie", delete.toString());
+
+        // Clear security context
+        SecurityContextHolder.clearContext();
+
+        // Invalidate session
+        var session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
     }
 
     public Set<Book> getUserBooks(Long userId) {
