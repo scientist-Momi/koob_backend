@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -18,14 +19,33 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String googleBookId;
+
     private String title;
-    private String authors;
+
+    private String subtitle;
+
+    @ElementCollection
+    @CollectionTable(name = "book_authors", joinColumns = @JoinColumn(name = "book_id"))
+    @Column(name = "author")
+    private List<String> authors;
+
     private String publisher;
+
     private String publishedDate;
+
     @Column(length = 2000)
     private String description;
+
     private String thumbnailUrl;
+
+    private Integer pageCount;
+
+    private String language;
+
+    private String previewLink;
+
     private String infoLink;
 
     @ManyToMany(mappedBy = "books")
