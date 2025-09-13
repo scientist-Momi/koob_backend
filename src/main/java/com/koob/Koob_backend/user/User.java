@@ -42,7 +42,6 @@ public class User {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnore
-
     private Set<Book> books = new HashSet<>();
 
     @CreationTimestamp

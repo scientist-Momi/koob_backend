@@ -14,4 +14,5 @@ public class UserLibraryDTO {
     private LocalDateTime addedAt;
     private String status;
     private Integer rating;
+    private String notes;
 }

@@ -28,4 +28,8 @@ public class UserLibrary {
     // Optional: for future AI agents
     private String status; // e.g., "to-read", "reading", "finished"
     private Integer rating; // 1-5
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String notes;
 }
