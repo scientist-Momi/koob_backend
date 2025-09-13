@@ -33,16 +33,16 @@ public class User {
     private String givenName;
     private String familyName;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_books",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
-    )
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @JsonIgnore
-    private Set<Book> books = new HashSet<>();
+//    @ManyToMany
+//    @JoinTable(
+//            name = "user_books",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "book_id")
+//    )
+//    @ToString.Exclude
+//    @EqualsAndHashCode.Exclude
+//    @JsonIgnore
+//    private Set<Book> books = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

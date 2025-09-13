@@ -66,9 +66,9 @@ public class UserService {
         }
     }
 
-    public Set<Book> getUserBooks(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"))
-                .getBooks();
-    }
+//    public Set<Book> getUserBooks(Long userId) {
+//        return userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("User not found"))
+//                .getBooks();
+//    }
 }
