@@ -32,15 +32,23 @@ public class BookController {
 //        return ResponseEntity.ok(user.getBooks());
 //    }
 
+//    @GetMapping("/search")
+//    public ResponseEntity<ApiResponse<List<BookDTO>>> searchBooks(@RequestParam("q") String query) {
+//        List<BookDTO> results = bookService.searchBooks(query);
+//        return ResponseEntity.ok(ApiResponse.success("Search completed successfully", results));
+//    }
+
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<BookDTO>>> searchBooks(@RequestParam("q") String query) {
-        List<BookDTO> results = bookService.searchBooks(query);
+    public ResponseEntity<ApiResponse<List<GoogleBookItem>>> searchBooks(@RequestParam("q") String query) {
+        List<GoogleBookItem> results = bookService.searchBooks(query);
         return ResponseEntity.ok(ApiResponse.success("Search completed successfully", results));
     }
 
+
     @PostMapping("/save")
-    public ResponseEntity<ApiResponse<BookDTO>> saveBook(@RequestBody GoogleBookItem item) {
-        BookDTO saved = bookService.saveBookFromGoogle(item);
+    public ResponseEntity<ApiResponse<BookDTO>> saveBook(@RequestBody GoogleBookItem item, @AuthenticationPrincipal User user
+    ) {
+        BookDTO saved = bookService.saveBookFromGoogle(item, user.getId());
         return ResponseEntity.ok(ApiResponse.success("Book saved successfully", saved));
     }
 

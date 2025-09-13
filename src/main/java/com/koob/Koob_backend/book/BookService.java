@@ -1,5 +1,6 @@
 package com.koob.Koob_backend.book;
 
+import com.koob.Koob_backend.userLibrary.UserLibraryService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 public class BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
+    private final UserLibraryService userLibraryService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${google.books.api.key}")
@@ -20,12 +22,32 @@ public class BookService {
 
     private static final String GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes?q={query}&key={apiKey}";
 
-    public BookService(BookRepository bookRepository, BookMapper bookMapper) {
+    public BookService(BookRepository bookRepository, BookMapper bookMapper, UserLibraryService userLibraryService) {
         this.bookRepository = bookRepository;
         this.bookMapper = bookMapper;
+        this.userLibraryService = userLibraryService;
     }
 
-    public List<BookDTO> searchBooks(String query) {
+//    public List<BookDTO> searchBooks(String query) {
+//        GoogleBooksResponse response = restTemplate.getForObject(
+//                GOOGLE_BOOKS_API_URL,
+//                GoogleBooksResponse.class,
+//                query,
+//                googleBooksApiKey
+//        );
+//
+//        if (response == null || response.getItems() == null) {
+//            return List.of();
+//        }
+//
+//        return response.getItems().stream()
+//                .map(this::mapGoogleBookToEntity)
+//                .filter(Objects::nonNull)
+//                .map(book -> bookMapper.toDto(book))
+//                .collect(Collectors.toList());
+//    }
+
+    public List<GoogleBookItem> searchBooks(String query) {
         GoogleBooksResponse response = restTemplate.getForObject(
                 GOOGLE_BOOKS_API_URL,
                 GoogleBooksResponse.class,
@@ -38,25 +60,44 @@ public class BookService {
         }
 
         return response.getItems().stream()
-                .map(this::mapGoogleBookToEntity)     // Book
-                .filter(Objects::nonNull)             // skip nulls
-                .map(book -> bookMapper.toDto(book))  // now explicit, input is Book
+                .filter(item -> item.getVolumeInfo() != null) // keep only valid items
                 .collect(Collectors.toList());
     }
 
+
+//    @Transactional
+//    public BookDTO saveBookFromGoogle(GoogleBookItem item) {
+//        return bookRepository.findByGoogleBookId(item.getId())
+//                .map(bookMapper::toDto)
+//                .orElseGet(() -> {
+//                    Book book = mapGoogleBookToEntity(item);
+//                    if (book == null) {
+//                        throw new IllegalArgumentException("Book volume info is missing, cannot save");
+//                    }
+//                    Book saved = bookRepository.save(book);
+//                    return bookMapper.toDto(saved);
+//                });
+//    }
+
     @Transactional
-    public BookDTO saveBookFromGoogle(GoogleBookItem item) {
-        return bookRepository.findByGoogleBookId(item.getId())
-                .map(bookMapper::toDto)
+    public BookDTO saveBookFromGoogle(GoogleBookItem item, Long userId) {
+        Book existingOrSaved = bookRepository.findByGoogleBookId(item.getId())
                 .orElseGet(() -> {
                     Book book = mapGoogleBookToEntity(item);
                     if (book == null) {
                         throw new IllegalArgumentException("Book volume info is missing, cannot save");
                     }
-                    Book saved = bookRepository.save(book);
-                    return bookMapper.toDto(saved);
+                    return bookRepository.save(book);
                 });
+
+        // Add to user's library after ensuring the book exists
+        if (userId != null) {
+            userLibraryService.addBookToUser(userId, existingOrSaved);
+        }
+
+        return bookMapper.toDto(existingOrSaved);
     }
+
 
 
     private Book mapGoogleBookToEntity(GoogleBookItem item) {

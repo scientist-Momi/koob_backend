@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +32,7 @@ public class Book {
     @ElementCollection
     @CollectionTable(name = "book_authors", joinColumns = @JoinColumn(name = "book_id"))
     @Column(name = "author")
-    private List<String> authors;
+    private List<String> authors = new ArrayList<>();
 
     private String publisher;
 
