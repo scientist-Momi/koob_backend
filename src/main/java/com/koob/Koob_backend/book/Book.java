@@ -2,6 +2,7 @@ package com.koob.Koob_backend.book;
 
 import com.koob.Koob_backend.user.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,6 +14,7 @@ import java.util.Set;
 
 @Data
 @Entity
+@Builder
 @Table(name = "books")
 public class Book {
     @Id

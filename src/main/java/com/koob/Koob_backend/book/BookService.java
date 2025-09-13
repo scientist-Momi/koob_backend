@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,9 +38,10 @@ public class BookService {
         }
 
         return response.getItems().stream()
-                .map(this::mapGoogleBookToDTO)
+                .map(this::mapGoogleBookToEntity)     // Book
+                .filter(Objects::nonNull)             // skip nulls
+                .map(book -> bookMapper.toDto(book))  // now explicit, input is Book
                 .collect(Collectors.toList());
-
     }
 
     @Transactional
@@ -48,34 +50,43 @@ public class BookService {
                 .map(bookMapper::toDto)
                 .orElseGet(() -> {
                     Book book = mapGoogleBookToEntity(item);
+                    if (book == null) {
+                        throw new IllegalArgumentException("Book volume info is missing, cannot save");
+                    }
                     Book saved = bookRepository.save(book);
                     return bookMapper.toDto(saved);
                 });
     }
 
+
     private Book mapGoogleBookToEntity(GoogleBookItem item) {
-        var info = item.getVolumeInfo();
+        VolumeInfo info = item.getVolumeInfo();
+        if (info == null) {
+            return null; // skip items without volume info
+        }
 
-        Book book = new Book();
-        book.setGoogleBookId(item.getId());
-        book.setTitle(info.getTitle());
-        book.setSubtitle(info.getSubtitle());
-        book.setAuthors(info.getAuthors());
-        book.setPublisher(info.getPublisher());
-        book.setPublishedDate(info.getPublishedDate());
-        book.setDescription(info.getDescription());
-        book.setPageCount(info.getPageCount());
-        book.setLanguage(info.getLanguage());
-        book.setThumbnailUrl(info.getImageLinks() != null ? info.getImageLinks().getThumbnail() : null);
-        book.setPreviewLink(info.getPreviewLink());
-        book.setInfoLink(info.getInfoLink());
-
-        return book;
+        return Book.builder()
+                .googleBookId(item.getId())
+                .title(info.getTitle() != null ? info.getTitle() : "Untitled")
+                .subtitle(info.getSubtitle())
+                .authors(info.getAuthors() != null ? info.getAuthors() : List.of())
+                .publisher(info.getPublisher())
+                .publishedDate(info.getPublishedDate())
+                .description(info.getDescription())
+                .pageCount(info.getPageCount())
+                .thumbnailUrl(
+                        (info.getImageLinks() != null) ? info.getImageLinks().getThumbnail() : null
+                )
+                .language(info.getLanguage())
+                .previewLink(info.getPreviewLink())
+                .infoLink(info.getInfoLink())
+                .build();
     }
+
 
     private BookDTO mapGoogleBookToDTO(GoogleBookItem item) {
         Book book = mapGoogleBookToEntity(item);
-        return bookMapper.toDto(book);
+        return (book != null) ? bookMapper.toDto(book) : null;
     }
 
     public List<BookDTO> getAllBooks() {
