@@ -51,7 +51,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
-        response.sendRedirect("http://localhost:5173/dashboard");
+        response.sendRedirect("http://localhost:5173/app/dashboard");
 
     }
 }
