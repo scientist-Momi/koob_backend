@@ -54,6 +54,27 @@ public class UserLibraryService {
         }
     }
 
+    @Transactional
+    public void addBooksToUser(Long userId, List<Book> books) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        for (Book book : books) {
+            // Check if the book already exists in the DB by Google ID
+            Book existingBook = bookRepository.findByGoogleBookId(book.getGoogleBookId())
+                    .orElseGet(() -> bookRepository.save(book));
+
+            // Check if user already has this book in their library
+            boolean alreadyExists = userLibraryRepository.findByUserAndBook(user, existingBook).isPresent();
+            if (!alreadyExists) {
+                UserLibrary entry = new UserLibrary();
+                entry.setUser(user);
+                entry.setBook(existingBook);
+                userLibraryRepository.save(entry);
+            }
+        }
+    }
+
     public List<UserLibraryDTO> getUserBooks(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
