@@ -31,9 +31,12 @@ public class BookTools {
     @Tool("Save the given books to the authenticated user's library")
     public String saveToLibrary(List<Book> books) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
-
+        Object principal = auth.getPrincipal();
+        if (!(principal instanceof User user)) {
+            throw new RuntimeException("User not authenticated or principal type mismatch");
+        }
         libraryService.addBooksToUser(user.getId(), books);
         return "Saved " + books.size() + " books to library";
     }
+
 }

@@ -1,5 +1,7 @@
 package com.koob.Koob_backend.ai;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +19,14 @@ public class AgentController {
     }
 
     @PostMapping("/chat")
-    public String chat(@RequestBody Map<String, String> body) {
-        String userMessage = body.get("message");
-        return bookAgent.chat(userMessage);
+    public ResponseEntity<String> chat(@RequestBody Map<String, String> body) {
+        try {
+            String userMessage = body.get("message");
+            return ResponseEntity.ok(bookAgent.chat(userMessage));
+        } catch (Exception ex) {
+            // Log error, return generic error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + ex.getMessage());
+        }
     }
 }

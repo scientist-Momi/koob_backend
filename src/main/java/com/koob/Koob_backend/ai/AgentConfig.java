@@ -10,7 +10,7 @@ public class AgentConfig {
     @Bean
     public BookAgent bookAgent(ChatLanguageModel model, BookTools tools) {
         return AiServices.builder(BookAgent.class)
-                .chatLanguageModel(model)
+                .chatModel(model)
                 .tools(tools)
                 .build();
     }

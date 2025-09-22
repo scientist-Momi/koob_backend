@@ -3,7 +3,7 @@ package com.koob.Koob_backend.ai;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.spring.AiService;
 
-@dev.langchain4j.service.spring.AiService
+@AiService
 public interface BookAgent {
     @SystemMessage("""
     You are a helpful book assistant. 
