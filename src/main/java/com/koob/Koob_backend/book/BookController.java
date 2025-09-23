@@ -44,6 +44,12 @@ public class BookController {
         return ResponseEntity.ok(ApiResponse.success("Search completed successfully", results));
     }
 
+    @GetMapping("/search2")
+    public ResponseEntity<ApiResponse<List<SimpleBookDTO>>> searchBooks2(@RequestParam("q") String query) {
+        List<SimpleBookDTO> results = bookService.searchBooks2(query);
+        return ResponseEntity.ok(ApiResponse.success("Search completed successfully", results));
+    }
+
 
     @PostMapping("/save")
     public ResponseEntity<ApiResponse<BookDTO>> saveBook(@RequestBody GoogleBookItem item, @AuthenticationPrincipal User user
@@ -63,4 +69,6 @@ public class BookController {
         BookDTO book = bookService.getBookById(id);
         return ResponseEntity.ok(ApiResponse.success("Book retrieved successfully", book));
     }
+
+
 }

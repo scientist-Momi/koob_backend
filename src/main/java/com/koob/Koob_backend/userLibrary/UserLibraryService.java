@@ -24,19 +24,6 @@ public class UserLibraryService {
         this.bookRepository = bookRepository;
     }
 
-//    @Transactional
-//    public void addBookToUser(Long userId, Book book) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        // check if the book already exists
-//        Book existingBook = bookRepository.findByGoogleBookId(book.getGoogleBookId())
-//                .orElseGet(() -> bookRepository.save(book));
-//
-//        user.getBooks().add(existingBook);
-//        userRepository.save(user);
-//    }
-
     @Transactional
     public void addBookToUser(Long userId, Book book) {
         User user = userRepository.findById(userId)

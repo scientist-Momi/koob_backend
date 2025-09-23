@@ -2,11 +2,19 @@ package com.koob.Koob_backend.book;
 
 import com.koob.Koob_backend.userLibrary.UserLibraryService;
 import jakarta.transaction.Transactional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -16,6 +24,9 @@ public class BookService {
     private final BookMapper bookMapper;
     private final UserLibraryService userLibraryService;
     private final RestTemplate restTemplate = new RestTemplate();
+
+
+    private static final Logger log = LogManager.getLogger(BookService.class);
 
     @Value("${google.books.api.key}")
     private String googleBooksApiKey;
@@ -27,25 +38,6 @@ public class BookService {
         this.bookMapper = bookMapper;
         this.userLibraryService = userLibraryService;
     }
-
-//    public List<BookDTO> searchBooks(String query) {
-//        GoogleBooksResponse response = restTemplate.getForObject(
-//                GOOGLE_BOOKS_API_URL,
-//                GoogleBooksResponse.class,
-//                query,
-//                googleBooksApiKey
-//        );
-//
-//        if (response == null || response.getItems() == null) {
-//            return List.of();
-//        }
-//
-//        return response.getItems().stream()
-//                .map(this::mapGoogleBookToEntity)
-//                .filter(Objects::nonNull)
-//                .map(book -> bookMapper.toDto(book))
-//                .collect(Collectors.toList());
-//    }
 
     public List<GoogleBookItem> searchBooks(String query) {
         GoogleBooksResponse response = restTemplate.getForObject(
@@ -64,20 +56,44 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
+    public List<SimpleBookDTO> searchBooks2(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            log.warn("Query is null or empty");
+            return List.of();
+        }
+        try{
+            String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+            log.info("Calling Google Books API with query: {}", encodedQuery);
+        Map<String, Object> response = restTemplate.getForObject(
+                GOOGLE_BOOKS_API_URL,
+                Map.class,
+                query,
+                googleBooksApiKey
+        );
 
-//    @Transactional
-//    public BookDTO saveBookFromGoogle(GoogleBookItem item) {
-//        return bookRepository.findByGoogleBookId(item.getId())
-//                .map(bookMapper::toDto)
-//                .orElseGet(() -> {
-//                    Book book = mapGoogleBookToEntity(item);
-//                    if (book == null) {
-//                        throw new IllegalArgumentException("Book volume info is missing, cannot save");
-//                    }
-//                    Book saved = bookRepository.save(book);
-//                    return bookMapper.toDto(saved);
-//                });
-//    }
+        if (response == null || !response.containsKey("items")) {
+            log.warn("No items found for query: {}", query);
+            return List.of();
+        }
+
+        List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
+
+        return items.stream().map(item -> {
+            Map<String, Object> volumeInfo = (Map<String, Object>) item.get("volumeInfo");
+
+            SimpleBookDTO dto = new SimpleBookDTO();
+            dto.setGoogleBookId((String) item.get("id"));
+            dto.setTitle((String) volumeInfo.get("title"));
+            dto.setAuthors((List<String>) volumeInfo.getOrDefault("authors", List.of()));
+            dto.setDescription((String) volumeInfo.getOrDefault("description", ""));
+            return dto;
+        }).collect(Collectors.toList());
+        } catch (RestClientException e) {
+            log.error("Error calling Google Books API: {}", e.getMessage(), e);
+            return List.of();
+        }
+    }
+
 
     @Transactional
     public BookDTO saveBookFromGoogle(GoogleBookItem item, Long userId) {
@@ -98,9 +114,7 @@ public class BookService {
         return bookMapper.toDto(existingOrSaved);
     }
 
-
-
-    private Book mapGoogleBookToEntity(GoogleBookItem item) {
+    public Book mapGoogleBookToEntity(GoogleBookItem item) {
         VolumeInfo info = item.getVolumeInfo();
         if (info == null) {
             return null; // skip items without volume info

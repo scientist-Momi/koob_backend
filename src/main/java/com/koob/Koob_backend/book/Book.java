@@ -55,9 +55,6 @@ public class Book {
 
     private String infoLink;
 
-//    @ManyToMany(mappedBy = "books")
-//    private Set<User> users = new HashSet<>();
-
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

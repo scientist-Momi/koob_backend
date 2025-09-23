@@ -12,21 +12,26 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/agent")
 public class AgentController {
-    private final BookAgent bookAgent;
+//    private final BookAgent bookAgent;
+//
+//    public AgentController(BookAgent bookAgent) {
+//        this.bookAgent = bookAgent;
+//    }
 
-    public AgentController(BookAgent bookAgent) {
-        this.bookAgent = bookAgent;
-    }
+//    @PostMapping("/chat")
+//    public ResponseEntity<String> chat(@RequestBody Map<String, String> body) {
+//        try {
+//            String userMessage = body.get("message");
+//            return ResponseEntity.ok(bookAgent.chat(userMessage));
+//        } catch (Exception ex) {
+//            // Log error, return generic error
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("Error: " + ex.getMessage());
+//        }
+//    }
 
-    @PostMapping("/chat")
-    public ResponseEntity<String> chat(@RequestBody Map<String, String> body) {
-        try {
-            String userMessage = body.get("message");
-            return ResponseEntity.ok(bookAgent.chat(userMessage));
-        } catch (Exception ex) {
-            // Log error, return generic error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error: " + ex.getMessage());
-        }
-    }
+//    @PostMapping("/ask")
+//    public String handlePrompt(@RequestBody AgentRequest request) {
+//        return agent.chat(request.getPrompt());
+//    }
 }
