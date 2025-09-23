@@ -13,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -113,6 +114,33 @@ public class BookService {
 
         return bookMapper.toDto(existingOrSaved);
     }
+
+    @Transactional
+    public List<BookDTO> saveBooksFromGoogle(List<GoogleBookItem> items, Long userId) {
+        List<BookDTO> savedBooks = new ArrayList<>();
+
+        for (GoogleBookItem item : items) {
+            Book existingOrSaved = bookRepository.findByGoogleBookId(item.getId())
+                    .orElseGet(() -> {
+                        Book book = mapGoogleBookToEntity(item);
+                        if (book == null) {
+                            throw new IllegalArgumentException(
+                                    "Book volume info is missing for ID: " + item.getId()
+                            );
+                        }
+                        return bookRepository.save(book);
+                    });
+
+            if (userId != null) {
+                userLibraryService.addBookToUser(userId, existingOrSaved);
+            }
+
+            savedBooks.add(bookMapper.toDto(existingOrSaved));
+        }
+
+        return savedBooks;
+    }
+
 
     public Book mapGoogleBookToEntity(GoogleBookItem item) {
         VolumeInfo info = item.getVolumeInfo();
