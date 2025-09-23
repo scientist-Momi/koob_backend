@@ -29,8 +29,10 @@ public class Book {
     @Column(nullable = false, unique = true)
     private String googleBookId;
 
+    @Column(length = 500)
     private String title;
 
+    @Column(length = 500)
     private String subtitle;
 
     @ElementCollection
@@ -38,21 +40,26 @@ public class Book {
     @Column(name = "author")
     private List<String> authors = new ArrayList<>();
 
+    @Column(length = 500)
     private String publisher;
 
     private String publishedDate;
 
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
     private String thumbnailUrl;
 
     private Integer pageCount;
 
+    @Column(length = 10)
     private String language;
 
+    @Column(columnDefinition = "TEXT")
     private String previewLink;
 
+    @Column(columnDefinition = "TEXT")
     private String infoLink;
 
     @CreationTimestamp

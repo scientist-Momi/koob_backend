@@ -33,6 +33,8 @@ public class BookService {
     private String googleBooksApiKey;
 
     private static final String GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes?q={query}&key={apiKey}";
+    private final String GOOGLE_BOOKS_API_URL_WITH_IDS = "https://www.googleapis.com/books/v1/volumes/";
+
 
     public BookService(BookRepository bookRepository, BookMapper bookMapper, UserLibraryService userLibraryService) {
         this.bookRepository = bookRepository;
@@ -139,6 +141,27 @@ public class BookService {
         }
 
         return savedBooks;
+    }
+
+    public List<GoogleBookItem> getBooksByIds(List<String> ids) {
+        List<GoogleBookItem> items = new ArrayList<>();
+
+        for (String id : ids) {
+            try {
+                GoogleBookItem item = restTemplate.getForObject(
+                        GOOGLE_BOOKS_API_URL_WITH_IDS + id,
+                        GoogleBookItem.class
+                );
+                if (item != null) {
+                    items.add(item);
+                }
+            } catch (Exception e) {
+                // log and skip invalid/unavailable book
+                System.err.println("Failed to fetch book with ID: " + id + " - " + e.getMessage());
+            }
+        }
+
+        return items;
     }
 
 

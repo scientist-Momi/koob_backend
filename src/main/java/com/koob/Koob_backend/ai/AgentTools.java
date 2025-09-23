@@ -27,13 +27,15 @@ public class AgentTools {
     }
 
     @Tool(description = "Save all books retrieved from a query to a user library")
-    public List<BookDTO> saveBooksForUser(@ToolParam(description = "List of books retrieved from the getBooksFromGoogleBooks method should be here as a parameter. ") List<GoogleBookItem> books){
+    public List<BookDTO> saveBooksForUser(@ToolParam(description = "List of Google Book IDs to save ") List<String> googleBookIds){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
             throw new RuntimeException("User is not authenticated");
         }
 
         User user = (User) authentication.getPrincipal();
-        return bookService.saveBooksFromGoogle(books, user.getId());
+
+        List<GoogleBookItem> bookItems = bookService.getBooksByIds(googleBookIds);
+        return bookService.saveBooksFromGoogle(bookItems, user.getId());
     }
 }

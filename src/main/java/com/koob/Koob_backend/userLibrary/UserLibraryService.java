@@ -7,6 +7,7 @@ import com.koob.Koob_backend.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,6 +68,7 @@ public class UserLibraryService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return userLibraryRepository.findByUser(user).stream()
+                .sorted(Comparator.comparing(UserLibrary::getAddedAt).reversed())
                 .map(userLibraryMapper::toDto)
                 .collect(Collectors.toList());
     }
