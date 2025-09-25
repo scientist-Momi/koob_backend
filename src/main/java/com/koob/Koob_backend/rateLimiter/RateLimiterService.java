@@ -32,8 +32,8 @@ public class RateLimiterService {
     private Bucket newUserBucket(Long userId) {
         // Max 20 requests per minute
         return Bucket.builder()
-                .addLimit(limit -> limit.capacity(20)
-                        .refillGreedy(20, Duration.ofMinutes(1)))
+                .addLimit(limit -> limit.capacity(10)
+                        .refillGreedy(10, Duration.ofMinutes(1)))
                 .build();
     }
 
@@ -51,7 +51,7 @@ public class RateLimiterService {
             usage.count = 0;
         }
 
-        if (usage.count < 200) {
+        if (usage.count < 5) {
             usage.count++;
             return true;
         }
