@@ -12,7 +12,7 @@ public interface UserLibraryRepository extends JpaRepository<UserLibrary, Long> 
 
     Optional<UserLibrary> findByUserAndBook(User user, Book book);
 
-    void deleteByUserAndBook(User user, Book book);
+    void deleteByUserIdAndBookId(Long userId, Long bookId);
 
     Optional<UserLibrary> findByUserIdAndBookId(Long userId, Long bookId);
 }

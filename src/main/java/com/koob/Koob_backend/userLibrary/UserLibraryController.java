@@ -34,4 +34,12 @@ public class UserLibraryController {
         UserLibraryDTO updated = userLibraryService.addOrUpdateNotes(userId, bookId, notes);
         return ResponseEntity.ok(ApiResponse.success("Notes updated", updated));
     }
+
+    @DeleteMapping("/user/{userId}/book/{bookId}")
+    public ResponseEntity<ApiResponse<Void>> removeBook(@PathVariable Long userId,
+                                                        @PathVariable Long bookId) {
+        userLibraryService.removeBookFromUser(userId, bookId);
+        return ResponseEntity.ok(ApiResponse.success("Book removed", null));
+    }
+
 }

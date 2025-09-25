@@ -75,14 +75,9 @@ public class UserLibraryService {
 
     @Transactional
     public void removeBookFromUser(Long userId, Long bookId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
-
-        userLibraryRepository.deleteByUserAndBook(user, book);
+        userLibraryRepository.deleteByUserIdAndBookId(userId, bookId);
     }
+
 
     @Transactional
     public UserLibraryDTO addOrUpdateNotes(Long userId, Long bookId, String notes) {
