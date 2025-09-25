@@ -1,7 +1,10 @@
 package com.koob.Koob_backend.ai;
 
+import com.koob.Koob_backend.user.User;
+import com.koob.Koob_backend.util.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +21,24 @@ public class AgentController {
         this.agentService = agentService;
     }
 
+//    @PostMapping("/chat")
+//    public String chat(@RequestBody String userMessage, @AuthenticationPrincipal User user) {
+//        if (user == null) {
+//            return ResponseEntity.status(401).body(ApiResponse.error("Not authenticated"));
+//        }
+//        return agentService.chat(userMessage);
+//    }
+
     @PostMapping("/chat")
-    public String chat(@RequestBody String userMessage) {
-        return agentService.chat(userMessage);
+    public ResponseEntity<?> chat(@RequestBody String userMessage,
+                                  @AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error("Not authenticated"));
+        }
+
+        String response = agentService.chat(user.getId(), userMessage);
+        return ResponseEntity.ok(ApiResponse.success("successful", response));
     }
+
 }
