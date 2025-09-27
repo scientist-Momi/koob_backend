@@ -1,6 +1,7 @@
 package com.koob.Koob_backend.book;
 
 import com.koob.Koob_backend.user.User;
+import com.koob.Koob_backend.userLibrary.UserLibraryRepository;
 import com.koob.Koob_backend.userLibrary.UserLibraryService;
 import com.koob.Koob_backend.util.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -13,30 +14,33 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/v1/books")
 public class BookController {
-    private final UserLibraryService userLibraryService;
+    private final UserLibraryRepository userLibraryRepository;
+    private final BookRepository bookRepository;
     private final BookService bookService;
 
-    public BookController(UserLibraryService userLibraryService, BookService bookService) {
-        this.userLibraryService = userLibraryService;
+    public BookController(UserLibraryRepository userLibraryRepository, BookRepository bookRepository, BookService bookService) {
+        this.userLibraryRepository = userLibraryRepository;
+        this.bookRepository = bookRepository;
         this.bookService = bookService;
     }
 
-//    @PostMapping("/save")
-//    public ResponseEntity<String> saveBookForUser(@RequestBody Book book, @AuthenticationPrincipal User user) {
-//        userLibraryService.addBookToUser(user.getId(), book);
-//        return ResponseEntity.ok("Book saved!");
-//    }
-//
-//    @GetMapping("/mine")
-//    public ResponseEntity<Set<Book>> getMyBooks(@AuthenticationPrincipal User user) {
-//        return ResponseEntity.ok(user.getBooks());
-//    }
+    @GetMapping("/user/{userId}/book/{bookId}/recommendations")
+    public ResponseEntity<ApiResponse<List<GoogleBookItem>>> getRecommendations(
+            @PathVariable Long userId, @PathVariable Long bookId) {
 
-//    @GetMapping("/search")
-//    public ResponseEntity<ApiResponse<List<BookDTO>>> searchBooks(@RequestParam("q") String query) {
-//        List<BookDTO> results = bookService.searchBooks(query);
-//        return ResponseEntity.ok(ApiResponse.success("Search completed successfully", results));
-//    }
+        boolean ownsBook = userLibraryRepository.existsByUserIdAndBookId(userId, bookId);
+        if (!ownsBook) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Book not in your library"));
+        }
+
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        List<GoogleBookItem> recs = bookService.getRecommendationsForUser(userId, book.getTitle(), book.getAuthors());
+
+        return ResponseEntity.ok(ApiResponse.success("Recommendations found", recs));
+    }
+
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<GoogleBookItem>>> searchBooks(@RequestParam("q") String query) {

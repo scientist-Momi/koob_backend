@@ -1,5 +1,6 @@
 package com.koob.Koob_backend.book;
 
+import com.koob.Koob_backend.userLibrary.UserLibraryRepository;
 import com.koob.Koob_backend.userLibrary.UserLibraryService;
 import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +25,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
     private final UserLibraryService userLibraryService;
+    private final UserLibraryRepository userLibraryRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
 
@@ -34,12 +36,14 @@ public class BookService {
 
     private static final String GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes?q={query}&key={apiKey}";
     private final String GOOGLE_BOOKS_API_URL_WITH_IDS = "https://www.googleapis.com/books/v1/volumes/";
+    private static final String GOOGLE_BOOKS_API_URL_FOR_RECOMMENDATION = "https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=3&key={apiKey}";
 
 
-    public BookService(BookRepository bookRepository, BookMapper bookMapper, UserLibraryService userLibraryService) {
+    public BookService(BookRepository bookRepository, BookMapper bookMapper, UserLibraryService userLibraryService, UserLibraryRepository userLibraryRepository) {
         this.bookRepository = bookRepository;
         this.bookMapper = bookMapper;
         this.userLibraryService = userLibraryService;
+        this.userLibraryRepository = userLibraryRepository;
     }
 
     public List<GoogleBookItem> searchBooks(String query) {
@@ -58,6 +62,48 @@ public class BookService {
                 .filter(item -> item.getVolumeInfo() != null) // keep only valid items
                 .collect(Collectors.toList());
     }
+
+    public List<GoogleBookItem> getRecommendations(String title, List<String> authors) {
+        // Build query string: prioritize author, then title
+        StringBuilder queryBuilder = new StringBuilder();
+        if (title != null && !title.isEmpty()) {
+            queryBuilder.append(title);
+        }
+        if (authors != null && !authors.isEmpty()) {
+            queryBuilder.append("+inauthor:").append(authors.get(0));
+        }
+
+        String query = queryBuilder.toString();
+
+        GoogleBooksResponse response = restTemplate.getForObject(
+                GOOGLE_BOOKS_API_URL,
+                GoogleBooksResponse.class,
+                query,
+                googleBooksApiKey
+        );
+
+        if (response == null || response.getItems() == null) {
+            return List.of();
+        }
+
+        return response.getItems().stream()
+                .filter(item -> item.getVolumeInfo() != null)
+                .collect(Collectors.toList());
+    }
+
+    public List<GoogleBookItem> getRecommendationsForUser(Long userId, String title, List<String> authors) {
+        List<GoogleBookItem> recs = getRecommendations(title, authors);
+
+        List<String> ownedGoogleIds = userLibraryRepository.findByUserId(userId).stream()
+                .map(entry -> entry.getBook().getGoogleBookId())
+                .toList();
+
+        return recs.stream()
+                .filter(item -> item.getId() != null && !ownedGoogleIds.contains(item.getId()))
+                .limit(3)
+                .collect(Collectors.toList());
+    }
+
 
     public List<SimpleBookDTO> searchBooks2(String query) {
         if (query == null || query.trim().isEmpty()) {
