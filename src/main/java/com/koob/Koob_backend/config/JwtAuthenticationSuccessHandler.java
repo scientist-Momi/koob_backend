@@ -38,8 +38,8 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
         String jwt = jwtUtil.generateToken(userId, email);
 
-        boolean isSecure = false;
-        String sameSite = "Lax";
+        boolean isSecure = true; //local false
+        String sameSite = "None"; //local Lax
 
 
         ResponseCookie cookie = ResponseCookie.from("AUTH-TOKEN", jwt)
