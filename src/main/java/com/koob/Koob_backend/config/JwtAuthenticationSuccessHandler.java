@@ -52,7 +52,8 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
         response.addHeader("Set-Cookie", cookie.toString());
 //        response.sendRedirect("http://localhost:5173/app/dashboard");
-        response.sendRedirect("https://koob.oolumomi.dev/app/dashboard");
+//        response.sendRedirect("https://koob.oolumomi.dev/app/dashboard");
+        response.sendRedirect("https://scientist-momi.github.io/koob_frontend/app/dashboard");
 
     }
 }
