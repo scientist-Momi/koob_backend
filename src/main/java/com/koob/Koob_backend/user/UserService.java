@@ -49,8 +49,8 @@ public class UserService {
         // Delete cookie
         ResponseCookie delete = ResponseCookie.from("AUTH-TOKEN", "")
                 .httpOnly(true)
-                .secure(false) // set true in prod
-                .sameSite("Lax")
+                .secure(true) // set true in prod
+                .sameSite("None")
                 .path("/")
                 .maxAge(0)
                 .build();
