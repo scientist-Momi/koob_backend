@@ -51,6 +51,7 @@ public class UserService {
                 .httpOnly(true)
                 .secure(true) // set true in prod
                 .sameSite("None")
+                .domain(".oolumomi.dev")
                 .path("/")
                 .maxAge(0)
                 .build();
