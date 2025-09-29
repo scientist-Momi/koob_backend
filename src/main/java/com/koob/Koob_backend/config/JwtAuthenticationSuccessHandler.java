@@ -54,8 +54,24 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 //        response.sendRedirect("http://localhost:5173/app/dashboard");
 //        response.sendRedirect("https://koob.oolumomi.dev/app/dashboard");
 //        response.sendRedirect("https://scientist-momi.github.io/koob_frontend/app/dashboard");
-        response.setContentType("application/json");
-        response.getWriter().write("{\"redirectUrl\":\"https://koob.oolumomi.dev/app/dashboard\"}");
+//        response.setContentType("application/json");
+//        response.getWriter().write("{\"redirectUrl\":\"https://koob.oolumomi.dev/app/dashboard\"}");
+
+
+        String frontendCallback = "https://koob.oolumomi.dev/auth/callback"; // change if needed
+        response.setContentType("text/html;charset=UTF-8");
+
+        // short delay to give Safari time to persist cookie (150-400ms usually OK)
+        String html = "<!doctype html>\n"
+                + "<html><head><meta charset='utf-8'><title>Redirecting…</title></head>\n"
+                + "<body>\n"
+                + "<script>\n"
+                + "  setTimeout(function(){ window.location.replace('" + frontendCallback + "'); }, 250);\n"
+                + "</script>\n"
+                + "<p>Redirecting… If not redirected, <a href='" + frontendCallback + "'>click here</a>.</p>\n"
+                + "</body></html>";
+
+        response.getWriter().write(html);
 
     }
 }
