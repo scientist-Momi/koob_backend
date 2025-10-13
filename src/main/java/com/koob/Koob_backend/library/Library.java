@@ -1,5 +1,6 @@
 package com.koob.Koob_backend.library;
 
+import com.koob.Koob_backend.user.User;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,5 +12,12 @@ public class Library {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String type;
+    private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column(name = "is_visible")
+    private boolean isPrivate;
 }
