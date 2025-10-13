@@ -1,6 +1,7 @@
-package com.koob.Koob_backend.library;
+package com.koob.Koob_backend.libraryItem;
 
-import com.koob.Koob_backend.user.User;
+import com.koob.Koob_backend.book.Book;
+import com.koob.Koob_backend.library.Library;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,23 +11,23 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "libraries")
-public class Library {
+@Table(name = "library_items")
+public class LibraryItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "library_id")
+    private Library library;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "book_id")
+    private Book book;
 
-    @Column(name = "is_private")
-    private boolean isPrivate;
+    private String note;
 
-    @Column(name = "share_code", unique = true)
-    private String shareCode;
+    private Integer rating;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
