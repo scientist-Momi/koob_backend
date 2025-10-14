@@ -4,6 +4,7 @@ import com.koob.Koob_backend.user.User;
 import com.koob.Koob_backend.user.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -14,6 +15,10 @@ public class LibraryService {
     public LibraryService(LibraryRepository libraryRepository, UserRepository userRepository) {
         this.libraryRepository = libraryRepository;
         this.userRepository = userRepository;
+    }
+
+    public List<Library> getLibrariesByUser(Long userId) {
+        return libraryRepository.findByUserId(userId);
     }
 
     public Library createLibrary(NewLibraryRequest request){
