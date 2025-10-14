@@ -29,6 +29,8 @@ public class LibraryItem {
 
     private Integer rating;
 
+    private String status;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
