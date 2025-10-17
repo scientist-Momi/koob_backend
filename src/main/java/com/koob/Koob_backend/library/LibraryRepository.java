@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface LibraryRepository extends JpaRepository<Library, Long> {
     List<Library> findByUserId(Long userId);
     Optional<Library> findByShareCode(String shareCode);
+    Optional<Library> findByIdAndUserId(Long libraryId, Long userId);
+
 }

@@ -1,6 +1,9 @@
 package com.koob.Koob_backend.user;
 
 import com.koob.Koob_backend.book.Book;
+import com.koob.Koob_backend.library.Library;
+import com.koob.Koob_backend.library.LibraryRepository;
+import com.koob.Koob_backend.library.LibraryService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseCookie;
@@ -14,10 +17,12 @@ import java.util.Set;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final LibraryRepository libraryRepository;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, LibraryService libraryService, LibraryRepository libraryRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.libraryRepository = libraryRepository;
     }
 
     public UserDTO getUserById(Long userId) {
@@ -33,7 +38,14 @@ public class UserService {
             newUser.setEmail(email);
             newUser.setName(name);
             newUser.setPictureUrl(pictureUrl);
-            return userRepository.save(newUser);
+            userRepository.save(newUser);
+
+            Library library = new Library();
+            library.setUser(newUser);
+            library.setName("Personal");
+            library.setPrivate(true);
+            libraryRepository.save(library);
+            return newUser;
         });
     }
 
@@ -49,9 +61,9 @@ public class UserService {
         // Delete cookie
         ResponseCookie delete = ResponseCookie.from("AUTH-TOKEN", "")
                 .httpOnly(true)
-                .secure(true) // set true in prod
-                .sameSite("None")
-                .domain(".oolumomi.dev")
+                .secure(false) // set true in prod
+                .sameSite("Lax")
+//                .domain(".oolumomi.dev")
                 .path("/")
                 .maxAge(0)
                 .build();

@@ -25,7 +25,9 @@ public class LibraryItem {
     @JoinColumn(name = "book_id")
     private Book book;
 
-    private String note;
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String notes;
 
     private Integer rating;
 

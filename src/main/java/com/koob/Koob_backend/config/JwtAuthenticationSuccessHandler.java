@@ -38,41 +38,26 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
         String jwt = jwtUtil.generateToken(userId, email);
 
-        boolean isSecure = true; //local false
-        String sameSite = "None"; //local Lax
+//        Production
+//        boolean isSecure = true;
+//        String sameSite = "None";
 
+//        Development
+        boolean isSecure = false; //local false
+        String sameSite = "Lax"; //local Lax
 
         ResponseCookie cookie = ResponseCookie.from("AUTH-TOKEN", jwt)
                 .httpOnly(true)
                 .secure(isSecure)
                 .sameSite(sameSite)
-                .domain(".oolumomi.dev")
+//                .domain(".oolumomi.dev")
                 .path("/")
                 .maxAge(jwtUtil.getExpirationMs() / 1000)
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
-//        response.sendRedirect("http://localhost:5173/app/dashboard");
-        response.sendRedirect("https://koob.oolumomi.dev/app/dashboard");
-//        response.sendRedirect("https://scientist-momi.github.io/koob_frontend/app/dashboard");
-//        response.setContentType("application/json");
-//        response.getWriter().write("{\"redirectUrl\":\"https://koob.oolumomi.dev/app/dashboard\"}");
-
-
-//        String frontendCallback = "https://koob.oolumomi.dev/auth/callback"; // change if needed
-//        response.setContentType("text/html;charset=UTF-8");
-//
-//        // short delay to give Safari time to persist cookie (150-400ms usually OK)
-//        String html = "<!doctype html>\n"
-//                + "<html><head><meta charset='utf-8'><title>Redirecting…</title></head>\n"
-//                + "<body>\n"
-//                + "<script>\n"
-//                + "  setTimeout(function(){ window.location.replace('" + frontendCallback + "'); }, 250);\n"
-//                + "</script>\n"
-//                + "<p>Redirecting… If not redirected, <a href='" + frontendCallback + "'>click here</a>.</p>\n"
-//                + "</body></html>";
-//
-//        response.getWriter().write(html);
+        response.sendRedirect("http://localhost:5173/app/dashboard");
+//        response.sendRedirect("https://koob.oolumomi.dev/app/dashboard");
 
     }
 }

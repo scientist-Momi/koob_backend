@@ -1,5 +1,6 @@
 package com.koob.Koob_backend.book;
 
+import com.koob.Koob_backend.libraryItem.LibraryItemService;
 import com.koob.Koob_backend.userLibrary.UserLibraryRepository;
 import com.koob.Koob_backend.userLibrary.UserLibraryService;
 import jakarta.transaction.Transactional;
@@ -25,6 +26,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
     private final UserLibraryService userLibraryService;
+    private final LibraryItemService libraryItemService;
     private final UserLibraryRepository userLibraryRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -39,10 +41,11 @@ public class BookService {
     private static final String GOOGLE_BOOKS_API_URL_FOR_RECOMMENDATION = "https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=3&key={apiKey}";
 
 
-    public BookService(BookRepository bookRepository, BookMapper bookMapper, UserLibraryService userLibraryService, UserLibraryRepository userLibraryRepository) {
+    public BookService(BookRepository bookRepository, BookMapper bookMapper, UserLibraryService userLibraryService, LibraryItemService libraryItemService, UserLibraryRepository userLibraryRepository) {
         this.bookRepository = bookRepository;
         this.bookMapper = bookMapper;
         this.userLibraryService = userLibraryService;
+        this.libraryItemService = libraryItemService;
         this.userLibraryRepository = userLibraryRepository;
     }
 
@@ -160,6 +163,23 @@ public class BookService {
             userLibraryService.addBookToUser(userId, existingOrSaved);
         }
 
+        return bookMapper.toDto(existingOrSaved);
+    }
+
+    @Transactional
+    public BookDTO saveBookFromGoogleToLibrary(GoogleBookItem item, Long userId, Long libraryId) {
+        Book existingOrSaved = bookRepository.findByGoogleBookId(item.getId())
+                .orElseGet(() -> {
+                    Book book = mapGoogleBookToEntity(item);
+                    if (book == null) {
+                        throw new IllegalArgumentException("Book volume info is missing, cannot save");
+                    }
+                    return bookRepository.save(book);
+                });
+
+        if (userId != null) {
+            libraryItemService.addBookToLibrary(userId, existingOrSaved, libraryId);
+        }
         return bookMapper.toDto(existingOrSaved);
     }
 

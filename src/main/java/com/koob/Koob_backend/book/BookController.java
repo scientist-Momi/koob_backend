@@ -62,6 +62,12 @@ public class BookController {
         return ResponseEntity.ok(ApiResponse.success("Book saved successfully", saved));
     }
 
+    @PostMapping("/saveToBox")
+    public ResponseEntity<ApiResponse<BookDTO>> saveBookToBox(@RequestBody GoogleBookItem item, @AuthenticationPrincipal User user, Long boxId){
+        BookDTO saved = bookService.saveBookFromGoogleToLibrary(item, user.getId(), boxId);
+        return ResponseEntity.ok(ApiResponse.success("Book saved successfully", saved));
+    }
+
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<BookDTO>>> getAllBooks() {
         List<BookDTO> books = bookService.getAllBooks();
