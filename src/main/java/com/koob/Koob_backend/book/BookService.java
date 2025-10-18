@@ -183,6 +183,10 @@ public class BookService {
         return bookMapper.toDto(existingOrSaved);
     }
 
+//    public List<BookDTO> saveBooksFromGoogleToLibrary(List<GoogleBookItem> items, Long userId, Long libraryId){
+//        List<BookDTO> savedBooks = new ArrayList<>();
+//    }
+
     @Transactional
     public List<BookDTO> saveBooksFromGoogle(List<GoogleBookItem> items, Long userId) {
         List<BookDTO> savedBooks = new ArrayList<>();

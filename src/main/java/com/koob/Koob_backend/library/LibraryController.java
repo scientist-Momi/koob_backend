@@ -1,6 +1,9 @@
 package com.koob.Koob_backend.library;
 
 import com.koob.Koob_backend.book.GoogleBookItem;
+import com.koob.Koob_backend.libraryItem.GetBooksRequest;
+import com.koob.Koob_backend.libraryItem.LibraryItemDTO;
+import com.koob.Koob_backend.libraryItem.LibraryItemService;
 import com.koob.Koob_backend.user.User;
 import com.koob.Koob_backend.util.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +16,11 @@ import java.util.List;
 @RequestMapping("/api/v1/boxes")
 public class LibraryController {
     private final LibraryService libraryService;
+    private final LibraryItemService libraryItemService;
 
-    public LibraryController(LibraryService libraryService) {
+    public LibraryController(LibraryService libraryService, LibraryItemService libraryItemService) {
         this.libraryService = libraryService;
+        this.libraryItemService = libraryItemService;
     }
 
     @GetMapping
@@ -31,5 +36,11 @@ public class LibraryController {
     public ResponseEntity<ApiResponse<Library>> createBox(@RequestBody NewLibraryRequest request){
         Library box = libraryService.createLibrary(request);
         return ResponseEntity.ok(ApiResponse.success("Box created successfully", box));
+    }
+
+    @PostMapping("/items")
+    public ResponseEntity<ApiResponse<List<LibraryItemDTO>>> getLibraryItems(@RequestBody GetBooksRequest request){
+        List<LibraryItemDTO> items = libraryItemService.getAllBooksInUserLibrary(request);
+        return ResponseEntity.ok(ApiResponse.success("Box items retrieved", items));
     }
 }

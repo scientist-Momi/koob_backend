@@ -11,21 +11,23 @@ import com.koob.Koob_backend.userLibrary.UserLibraryMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LibraryItemService {
     private final LibraryItemRepository libraryItemRepository;
     private final LibraryRepository libraryRepository;
-    private final UserLibraryMapper userLibraryMapper;
+    private final LibraryItemMapper libraryItemMapper;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
 
-    public LibraryItemService(LibraryItemRepository libraryItemRepository, LibraryRepository libraryRepository, UserLibraryMapper userLibraryMapper, UserRepository userRepository, BookRepository bookRepository) {
+    public LibraryItemService(LibraryItemRepository libraryItemRepository, LibraryRepository libraryRepository, UserLibraryMapper userLibraryMapper, LibraryItemMapper libraryItemMapper, UserRepository userRepository, BookRepository bookRepository) {
         this.libraryItemRepository = libraryItemRepository;
         this.libraryRepository = libraryRepository;
-        this.userLibraryMapper = userLibraryMapper;
+        this.libraryItemMapper = libraryItemMapper;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
     }
@@ -43,6 +45,16 @@ public class LibraryItemService {
             entry.setStatus("to-read");
             libraryItemRepository.save(entry);
         }
+    }
+
+    public List<LibraryItemDTO> getAllBooksInUserLibrary(GetBooksRequest request){
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return libraryItemRepository.findByLibraryId(request.getLibraryId()).stream()
+                .sorted(Comparator.comparing(LibraryItem::getCreatedAt).reversed())
+                .map(libraryItemMapper::toDto)
+                .collect(Collectors.toList());
     }
 
 
