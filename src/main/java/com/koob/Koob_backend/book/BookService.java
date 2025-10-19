@@ -183,9 +183,27 @@ public class BookService {
         return bookMapper.toDto(existingOrSaved);
     }
 
-//    public List<BookDTO> saveBooksFromGoogleToLibrary(List<GoogleBookItem> items, Long userId, Long libraryId){
-//        List<BookDTO> savedBooks = new ArrayList<>();
-//    }
+    public List<BookDTO> saveBooksFromGoogleToLibrary(NewBookRequest request, Long userId){
+        List<BookDTO> savedBooks = new ArrayList<>();
+
+        for (GoogleBookItem item : request.getItems()) {
+            Book existingOrSaved = bookRepository.findByGoogleBookId(item.getId())
+                    .orElseGet(() -> {
+                        Book book = mapGoogleBookToEntity(item);
+                        if (book == null) {
+                            throw new IllegalArgumentException(
+                                    "Book volume info is missing for ID: " + item.getId()
+                            );
+                        }
+                        return bookRepository.save(book);
+                    });
+            if (userId != null) {
+                libraryItemService.addBookToLibrary(userId, existingOrSaved, request.getLibraryId());
+            }
+            savedBooks.add(bookMapper.toDto(existingOrSaved));
+        }
+        return savedBooks;
+    }
 
     @Transactional
     public List<BookDTO> saveBooksFromGoogle(List<GoogleBookItem> items, Long userId) {
