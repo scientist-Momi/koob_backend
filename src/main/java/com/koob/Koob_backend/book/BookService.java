@@ -1,5 +1,6 @@
 package com.koob.Koob_backend.book;
 
+import com.koob.Koob_backend.libraryItem.LibraryItemRepository;
 import com.koob.Koob_backend.libraryItem.LibraryItemService;
 import com.koob.Koob_backend.userLibrary.UserLibraryRepository;
 import com.koob.Koob_backend.userLibrary.UserLibraryService;
@@ -28,6 +29,7 @@ public class BookService {
     private final UserLibraryService userLibraryService;
     private final LibraryItemService libraryItemService;
     private final UserLibraryRepository userLibraryRepository;
+    private final LibraryItemRepository libraryItemRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
 
@@ -41,12 +43,13 @@ public class BookService {
     private static final String GOOGLE_BOOKS_API_URL_FOR_RECOMMENDATION = "https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=3&key={apiKey}";
 
 
-    public BookService(BookRepository bookRepository, BookMapper bookMapper, UserLibraryService userLibraryService, LibraryItemService libraryItemService, UserLibraryRepository userLibraryRepository) {
+    public BookService(BookRepository bookRepository, BookMapper bookMapper, UserLibraryService userLibraryService, LibraryItemService libraryItemService, UserLibraryRepository userLibraryRepository, LibraryItemRepository libraryItemRepository) {
         this.bookRepository = bookRepository;
         this.bookMapper = bookMapper;
         this.userLibraryService = userLibraryService;
         this.libraryItemService = libraryItemService;
         this.userLibraryRepository = userLibraryRepository;
+        this.libraryItemRepository = libraryItemRepository;
     }
 
     public List<GoogleBookItem> searchBooks(String query) {
@@ -94,10 +97,10 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
-    public List<GoogleBookItem> getRecommendationsForUser(Long userId, String title, List<String> authors) {
+    public List<GoogleBookItem> getRecommendationsForUser(Long libraryId, String title, List<String> authors) {
         List<GoogleBookItem> recs = getRecommendations(title, authors);
 
-        List<String> ownedGoogleIds = userLibraryRepository.findByUserId(userId).stream()
+        List<String> ownedGoogleIds = libraryItemRepository.findByLibraryId(libraryId).stream()
                 .map(entry -> entry.getBook().getGoogleBookId())
                 .toList();
 

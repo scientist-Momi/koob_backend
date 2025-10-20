@@ -1,5 +1,6 @@
 package com.koob.Koob_backend.book;
 
+import com.koob.Koob_backend.libraryItem.LibraryItemRepository;
 import com.koob.Koob_backend.user.User;
 import com.koob.Koob_backend.userLibrary.UserLibraryRepository;
 import com.koob.Koob_backend.userLibrary.UserLibraryService;
@@ -17,18 +18,20 @@ public class BookController {
     private final UserLibraryRepository userLibraryRepository;
     private final BookRepository bookRepository;
     private final BookService bookService;
+    private final LibraryItemRepository libraryItemRepository;
 
-    public BookController(UserLibraryRepository userLibraryRepository, BookRepository bookRepository, BookService bookService) {
+    public BookController(UserLibraryRepository userLibraryRepository, BookRepository bookRepository, BookService bookService, LibraryItemRepository libraryItemRepository) {
         this.userLibraryRepository = userLibraryRepository;
         this.bookRepository = bookRepository;
         this.bookService = bookService;
+        this.libraryItemRepository = libraryItemRepository;
     }
 
-    @GetMapping("/user/{userId}/book/{bookId}/recommendations")
+    @GetMapping("/box/{boxId}/book/{bookId}/recommendations")
     public ResponseEntity<ApiResponse<List<GoogleBookItem>>> getRecommendations(
-            @PathVariable Long userId, @PathVariable Long bookId) {
+            @PathVariable Long boxId, @PathVariable Long bookId) {
 
-        boolean ownsBook = userLibraryRepository.existsByUserIdAndBookId(userId, bookId);
+        boolean ownsBook = libraryItemRepository.existsByLibraryIdAndBookId(boxId, bookId);
         if (!ownsBook) {
             return ResponseEntity.status(403).body(ApiResponse.error("Book not in your library"));
         }
@@ -36,7 +39,7 @@ public class BookController {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
-        List<GoogleBookItem> recs = bookService.getRecommendationsForUser(userId, book.getTitle(), book.getAuthors());
+        List<GoogleBookItem> recs = bookService.getRecommendationsForUser(boxId, book.getTitle(), book.getAuthors());
 
         return ResponseEntity.ok(ApiResponse.success("Recommendations found", recs));
     }
