@@ -39,25 +39,25 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
         String jwt = jwtUtil.generateToken(userId, email);
 
 //        Production
-//        boolean isSecure = true;
-//        String sameSite = "None";
+        boolean isSecure = true;
+        String sameSite = "None";
 
 //        Development
-        boolean isSecure = false; //local false
-        String sameSite = "Lax"; //local Lax
+//        boolean isSecure = false; //local false
+//        String sameSite = "Lax"; //local Lax
 
         ResponseCookie cookie = ResponseCookie.from("AUTH-TOKEN", jwt)
                 .httpOnly(true)
                 .secure(isSecure)
                 .sameSite(sameSite)
-//                .domain(".oolumomi.dev")
+                .domain(".oolumomi.dev")
                 .path("/")
                 .maxAge(jwtUtil.getExpirationMs() / 1000)
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
-        response.sendRedirect("http://localhost:5173/app/dashboard");
-//        response.sendRedirect("https://koob.oolumomi.dev/app/dashboard");
+//        response.sendRedirect("http://localhost:5173/app/dashboard");
+        response.sendRedirect("https://koob.oolumomi.dev/app/dashboard");
 
     }
 }
