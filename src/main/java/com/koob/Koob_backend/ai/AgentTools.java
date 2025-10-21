@@ -3,6 +3,7 @@ package com.koob.Koob_backend.ai;
 import com.koob.Koob_backend.book.BookDTO;
 import com.koob.Koob_backend.book.BookService;
 import com.koob.Koob_backend.book.GoogleBookItem;
+import com.koob.Koob_backend.book.NewBookRequest;
 import com.koob.Koob_backend.library.Library;
 import com.koob.Koob_backend.user.User;
 import org.springframework.ai.tool.annotation.Tool;
@@ -28,7 +29,7 @@ public class AgentTools {
     }
 
     @Tool(description = "Save all books retrieved from a query to a user library")
-    public List<BookDTO> saveBooksForUser(@ToolParam(description = "List of Google Book IDs to save ") List<String> googleBookIds){
+    public List<BookDTO> saveBooksForUser(@ToolParam(description = "List of Google Book IDs to save ") List<String> googleBookIds, @ToolParam(description = "ID of the target library where the books should be saved") Long libraryId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
             throw new RuntimeException("User is not authenticated");
@@ -37,7 +38,10 @@ public class AgentTools {
         User user = (User) authentication.getPrincipal();
 
         List<GoogleBookItem> bookItems = bookService.getBooksByIds(googleBookIds);
-        return bookService.saveBooksFromGoogle(bookItems, user.getId());
+        NewBookRequest request = new NewBookRequest();
+        request.setItems(bookItems);
+        request.setLibraryId(libraryId);
+        return bookService.saveBooksFromGoogleToLibrary(request, user.getId());
     }
 
 }

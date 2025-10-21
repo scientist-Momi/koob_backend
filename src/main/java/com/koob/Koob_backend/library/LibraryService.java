@@ -1,7 +1,9 @@
 package com.koob.Koob_backend.library;
 
+import com.koob.Koob_backend.libraryItem.LibraryItemRepository;
 import com.koob.Koob_backend.user.User;
 import com.koob.Koob_backend.user.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,10 +14,12 @@ import java.util.UUID;
 public class LibraryService {
     private final LibraryRepository libraryRepository;
     private final UserRepository userRepository;
+    private final LibraryItemRepository libraryItemRepository;
 
-    public LibraryService(LibraryRepository libraryRepository, UserRepository userRepository) {
+    public LibraryService(LibraryRepository libraryRepository, UserRepository userRepository, LibraryItemRepository libraryItemRepository) {
         this.libraryRepository = libraryRepository;
         this.userRepository = userRepository;
+        this.libraryItemRepository = libraryItemRepository;
     }
 
     public List<Library> getLibrariesByUser(Long userId) {
@@ -49,5 +53,10 @@ public class LibraryService {
         }
 
         return libraryRepository.save(library);
+    }
+
+    @Transactional
+    public void removeBookFromLibrary(Long libraryId, Long bookId) {
+        libraryItemRepository.deleteByLibraryIdAndBookId(libraryId, bookId);
     }
 }

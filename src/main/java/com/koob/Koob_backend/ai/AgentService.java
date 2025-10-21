@@ -20,13 +20,15 @@ public class AgentService {
         this.rateLimiterService = rateLimiterService;
     }
 
-    public String chat(Long userId, String message) {
+    public String chat(Long userId, String message, Long libraryId) {
         PromptTemplate promptTemplate = new PromptTemplate("""
                 You are a helpful book assistant. Use tools to search and save books based on user requests.
                 For example, if asked to find and save books, search first, then save.
                 Always respond conversationally after actions.
+                
+                The user is working with library ID: {libraryId}.
                 """);
-        String systemPrompt = promptTemplate.render(Map.of());
+        String systemPrompt = promptTemplate.render(Map.of("libraryId", libraryId));
 
         if (!rateLimiterService.tryConsumeGlobal()) {
             throw new ResponseStatusException(

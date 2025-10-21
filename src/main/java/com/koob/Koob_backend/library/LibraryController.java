@@ -43,4 +43,10 @@ public class LibraryController {
         List<LibraryItemDTO> items = libraryItemService.getAllBooksInUserLibrary(request);
         return ResponseEntity.ok(ApiResponse.success("Box items retrieved", items));
     }
+
+    @DeleteMapping("/{boxId}/book/{bookId}")
+    public ResponseEntity<ApiResponse<Void>> removeBook(@PathVariable Long boxId, @PathVariable Long bookId){
+        libraryService.removeBookFromLibrary(boxId, bookId);
+        return ResponseEntity.ok(ApiResponse.success("Book removed", null));
+    }
 }

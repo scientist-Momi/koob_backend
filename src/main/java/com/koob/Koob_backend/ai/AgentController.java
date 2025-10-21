@@ -21,24 +21,15 @@ public class AgentController {
         this.agentService = agentService;
     }
 
-//    @PostMapping("/chat")
-//    public String chat(@RequestBody String userMessage, @AuthenticationPrincipal User user) {
-//        if (user == null) {
-//            return ResponseEntity.status(401).body(ApiResponse.error("Not authenticated"));
-//        }
-//        return agentService.chat(userMessage);
-//    }
-
     @PostMapping("/chat")
-    public ResponseEntity<?> chat(@RequestBody String userMessage,
+    public ResponseEntity<?> chat(@RequestBody ChatRequest chatRequest,
                                   @AuthenticationPrincipal User user) {
         if (user == null) {
             return ResponseEntity.status(401)
                     .body(ApiResponse.error("Not authenticated"));
         }
 
-        String response = agentService.chat(user.getId(), userMessage);
+        String response = agentService.chat(user.getId(), chatRequest.getUserMessage(), chatRequest.getBoxId());
         return ResponseEntity.ok(ApiResponse.success("successful", response));
     }
-
 }
