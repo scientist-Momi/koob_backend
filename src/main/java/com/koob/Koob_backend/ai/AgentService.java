@@ -25,6 +25,8 @@ public class AgentService {
                 You are a helpful book assistant. Use tools to search and save books based on user requests.
                 For example, if asked to find and save books, search first, then save.
                 Always respond conversationally after actions.
+                Respond in clean, human-readable text without markdown syntax or special symbols.
+                When returning response about books you found or you have added, just include the name of the book and author(s) of the book.
                 
                 The user is working with library ID: {libraryId}.
                 """);
