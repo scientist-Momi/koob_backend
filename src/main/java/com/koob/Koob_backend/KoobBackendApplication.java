@@ -16,13 +16,6 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class KoobBackendApplication {
 
-//    private final ChatModel chatModel;
-//
-//    public KoobBackendApplication(ChatModel chatModel) {
-//        this.chatModel = chatModel;
-//    }
-
-
     public static void main(String[] args) {
 		SpringApplication.run(KoobBackendApplication.class, args);
 	}
