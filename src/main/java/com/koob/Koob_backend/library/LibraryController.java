@@ -5,6 +5,7 @@ import com.koob.Koob_backend.libraryItem.GetBooksRequest;
 import com.koob.Koob_backend.libraryItem.LibraryItemDTO;
 import com.koob.Koob_backend.libraryItem.LibraryItemService;
 import com.koob.Koob_backend.user.User;
+import com.koob.Koob_backend.userNotes.NotesRequest;
 import com.koob.Koob_backend.util.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,6 +43,15 @@ public class LibraryController {
     public ResponseEntity<ApiResponse<List<LibraryItemDTO>>> getLibraryItems(@RequestBody GetBooksRequest request){
         List<LibraryItemDTO> items = libraryItemService.getAllBooksInUserLibrary(request);
         return ResponseEntity.ok(ApiResponse.success("Box items retrieved", items));
+    }
+
+    @PutMapping("/items/{id}/notes")
+    public ResponseEntity<ApiResponse<Void>> updateNotes(
+            @PathVariable Long id,
+            @RequestBody NotesRequest request
+    ) {
+        libraryItemService.updateLibraryItemNotes(id, request.getNotes());
+        return ResponseEntity.ok(ApiResponse.success("Notes updated", null));
     }
 
     @DeleteMapping("/{boxId}/book/{bookId}")

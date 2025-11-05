@@ -8,6 +8,7 @@ import com.koob.Koob_backend.user.User;
 import com.koob.Koob_backend.user.UserRepository;
 import com.koob.Koob_backend.userLibrary.UserLibrary;
 import com.koob.Koob_backend.userLibrary.UserLibraryMapper;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +48,7 @@ public class LibraryItemService {
         }
     }
 
+    @Transactional
     public List<LibraryItemDTO> getAllBooksInUserLibrary(GetBooksRequest request){
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -55,6 +57,13 @@ public class LibraryItemService {
                 .sorted(Comparator.comparing(LibraryItem::getCreatedAt).reversed())
                 .map(libraryItemMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public void updateLibraryItemNotes(Long itemId, String notes) {
+        LibraryItem item = libraryItemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException("Library item not found"));
+        item.setNotes(notes);
+        libraryItemRepository.save(item);
     }
 
 
